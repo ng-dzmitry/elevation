@@ -1,1 +1,26 @@
-<p>elevation works!</p>
+<div class="container">
+  <button type="button container-evaluation--btn" #requestingElevationData class="btn btn-primary my-2"
+    [disabled]="elevationLoading$ | async" (click)="requestElevationData()">
+    request elevation data
+  </button>
+
+  @defer (on interaction(requestingElevationData)) {
+  <ng-container *ngIf="elevationLoading$ | async; else evaluationContent">
+    <div class="text-center container-evaluation--spinner">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #evaluationContent>
+    <elevation-chart />
+    <elevation-average />
+    <elevation-max-height />
+  </ng-template>
+  }
+
+  <div *ngIf="elevationLoadingFailed$ | async" class="alert alert-danger container-evaluation--error">
+    The loading of the elevation data has failed. Please try again.
+  </div>
+</div>
