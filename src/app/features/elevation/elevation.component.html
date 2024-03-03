@@ -1,26 +1,31 @@
 <div class="container">
-  <button type="button container-evaluation--btn" #requestingElevationData class="btn btn-primary my-2"
-    [disabled]="elevationLoading$ | async" (click)="requestElevationData()">
-    request elevation data
-  </button>
-
-  @defer (on interaction(requestingElevationData)) {
-  <ng-container *ngIf="elevationLoading$ | async; else evaluationContent">
-    <div class="text-center container-evaluation--spinner">
-      <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
+  <div class="row">
+    <div class="col-md-6 col-8 mt-4">
+      <button type="button" #requestingElevationData class="btn btn-primary w-100"
+        [disabled]="elevationLoading$ | async" (click)="requestElevationData()">
+        <span *ngIf="!(elevationLoading$ | async); else loading">request elevation data</span>
+        <ng-template #loading>
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          Loading...
+        </ng-template>
+      </button>
     </div>
-  </ng-container>
 
-  <ng-template #evaluationContent>
-    <elevation-chart />
-    <elevation-average />
-    <elevation-max-height />
-  </ng-template>
-  }
+    @defer (on interaction(requestingElevationData)) {
+    <div class="col-12 my-2">
+      <elevation-chart />
+    </div>
+    <div class="col-md-6 col-12 my-2">
+      <elevation-average />
+    </div>
+    <div class="w-100"></div>
+    <div class="col-md-6 col-12 my-2">
+      <elevation-max-height />
+    </div>
+    }
 
-  <div *ngIf="elevationLoadingFailed$ | async" class="alert alert-danger container-evaluation--error">
-    The loading of the elevation data has failed. Please try again.
+    <div *ngIf="elevationLoadingFailed$ | async" class="col-12 alert alert-danger container__elevation--error">
+      The loading of the elevation data has failed. Please try again.
+    </div>
   </div>
 </div>

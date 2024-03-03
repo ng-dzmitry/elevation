@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, OnInit, ViewChild, effect, inject, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, OnInit, inject, viewChild } from '@angular/core';
 import { Store, select } from '@ngrx/store';
-import { Observable, filter } from 'rxjs';
+import { BehaviorSubject, Observable, filter } from 'rxjs';
 import { selectChartData } from '../../state/elevation.reducer';
 import { ChartData } from '../../models/chart-data';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -20,8 +20,9 @@ import { Chart, registerables } from 'chart.js';
 export class ElevationChartComponent implements OnInit {
   private chartData$: Observable<ChartData | null>;
   private chartRef = viewChild.required<ElementRef>('chartElem');
-  public chart: Chart;
   private destroyRef = inject(DestroyRef);
+  private chart: Chart;
+  public hasChartInitilized$ = new BehaviorSubject(false);
 
   constructor(store: Store) {
     this.chartData$ = store.pipe(select(selectChartData));
@@ -38,10 +39,10 @@ export class ElevationChartComponent implements OnInit {
   }
 
   private drawChart(chartData: ChartData | null) {
-
     if (this.chart) {
       this.chart.destroy();
     }
+
     if (!chartData) {
       return;
     }
@@ -53,7 +54,7 @@ export class ElevationChartComponent implements OnInit {
         datasets: [{
           label: 'Elevation',
           data: chartData.elevations,
-          borderColor: 'blue',
+          borderColor: 'black',
           fill: false
         }]
       },
@@ -64,17 +65,19 @@ export class ElevationChartComponent implements OnInit {
             position: 'bottom',
             title: {
               display: true,
-              text: 'Distance (m)'
+              text: 'distance'
             }
           },
           y: {
             title: {
               display: true,
-              text: 'Elevation (m)'
+              text: 'elevation'
             }
           }
         }
       }
     });
+
+    this.hasChartInitilized$.next(true);
   }
 }

@@ -16,19 +16,20 @@ export class ElevationService {
   }
 
   private mapResponseToElevation(data: any) {
-    const path = data.results[0].value.features[0].geometry.paths[0];
-    const elevations: number[] = path.map((point: number[]) => point[2]);
-    const distances: number[] = path.map((point: number[], index: number) => index === 0 ? 0 : this.calculateDistance(path[index - 1], point));
-    const averageElevation = elevations.reduce((acc, cur) => acc + cur, 0) / elevations.length;
+    const elevations: number[] = [];
+    const distances: number[] = [];
+    let elevationSum = 0;
+
+    data.results[0].value.features[0].geometry.paths[0].forEach((point: number[]) => {
+      elevations.push(point[2]);
+      distances.push(point[3]);
+      elevationSum += point[2];
+    });
+
+    const averageElevation = elevationSum / elevations.length;
     const maxElevation = Math.max(...elevations);
     const maxDistance = Math.max(...distances);
     const chartData = new ChartData(distances, elevations, maxElevation, maxDistance);
     return new Elevation(averageElevation, maxElevation, chartData);
-  }
-
-  private calculateDistance(point1: number[], point2: number[]): number {
-    const [x1, y1] = point1;
-    const [x2, y2] = point2;
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
   }
 }
